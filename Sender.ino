@@ -2,8 +2,8 @@
 #include <LoRa.h>
 
 // WiFi network details
-const char* ssid = "mike265";
-const char* password = "773aee3ccf05c";
+const char* ssid = "mfkfkltoti";
+const char* password = "48990h4jh802r88";
 
 const int csPin = D8;
 const int resetPin = D0;

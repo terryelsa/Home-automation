@@ -2,6 +2,7 @@
 Home Automation using LoRa.
 
 SENDER CIRCUIT:
+
 ~Microcontroller: ESP8266 (Wi-Fi module)
 
 ~Wireless Communication: LoRa RA-02 module for long-range communication
@@ -9,6 +10,7 @@ SENDER CIRCUIT:
 Integration: Blynk App
 
 RECEIVER CIRCUIT:
+
 ~Microcontroller: Arduino Uno
 
 ~Wireless Communication: LoRa RA-02 module for long-range communication

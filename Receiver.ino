@@ -8,8 +8,8 @@ const int resetPin = 9;     // LoRa radio reset
 const int irqPin = 2;       // Interrupt request pin (DIO0)
 
 // Define relay pins
-const int relayPinFan = 5;  // Relay for fan connected to GPIO 5
-const int relayPinBulb = 6; // Relay for bulb connected to GPIO 6
+#define relayPin1 5 // Relay for fan connected to GPIO 5
+#define relayPin2 6 // Relay for bulb connected to GPIO 6
 
 // Define DHT sensor setup
 #define DHTPIN 7            // DHT11 data pin
@@ -21,11 +21,11 @@ const int pirPin = 8;       // PIR motion sensor pin
 
 void setup() {
   Serial.begin(9600);
-  pinMode(relayPinFan, OUTPUT);
-  pinMode(relayPinBulb, OUTPUT);
+  pinMode(relayPin1, OUTPUT);
+  pinMode(relayPin2, OUTPUT);
   // Ensure relays are OFF by default if using Normally Open
-  digitalWrite(relayPinFan, HIGH);
-  digitalWrite(relayPinBulb, HIGH);
+  digitalWrite(relayPin1, HIGH);
+  digitalWrite(relayPin2, HIGH);
 
   // Initialize LoRa
   LoRa.setPins(csPin, resetPin, irqPin);
@@ -43,9 +43,6 @@ void setup() {
 }
 
 void loop() {
-
-   checkRelayCommands();
-
   // Read sensor data
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
@@ -61,46 +58,39 @@ void loop() {
 
   // Send sensor data via LoRa to transmitter
   sendSensorData(temperature, humidity, motionDetected);
-   
-}
 
-void checkRelayCommands() {
-  int packetSize = LoRa.parsePacket();
-  if (packetSize) {
-    String received = "";
-    while (LoRa.available()) {
-      received += (char)LoRa.read();
-    }
-    Serial.print("Command received: ");
-    Serial.println(received);
-    handleRelayCommands(received);
-  }
-}
-
-void handleRelayCommands(String command) {
-  command.trim(); // Trim any whitespace
-  if (command == "FAN ON") {
-    digitalWrite(relayPinFan, LOW); // Turn ON the fan
-    Serial.println("Fan turned ON");
-  } else if (command == "FAN OFF") {
-    digitalWrite(relayPinFan, HIGH); // Turn OFF the fan
-    Serial.println("Fan turned OFF");
-  } else if (command == "BULB ON") {
-    digitalWrite(relayPinBulb, LOW); // Turn ON the bulb
-    Serial.println("Bulb turned ON");
-  } else if (command == "BULB OFF") {
-    digitalWrite(relayPinBulb, HIGH); // Turn OFF the bulb
-    Serial.println("Bulb turned OFF");
-  }
+  // Check for LoRa commands
+  receiveLoRaCommand();
 }
 
 void sendSensorData(float temperature, float humidity, int motionDetected) {
-  // Prepare sensor data string
-  String sensorData = "Temp:" + String(temperature) + ",Humidity:" + String(humidity) + ",Motion:" + String(motionDetected);
-
-  // Send sensor data via LoRa
   LoRa.beginPacket();
-  LoRa.print(sensorData);
+  LoRa.print("Temp:");
+  LoRa.print(temperature);
+  LoRa.print(",Humidity:");
+  LoRa.print(humidity);
+  LoRa.print(",Motion:");
+  LoRa.println(motionDetected ? "1" : "0");
   LoRa.endPacket();
-  Serial.println("Sent sensor data via LoRa: " + sensorData);
+  Serial.println("Sent sensor data via LoRa");
+}
+
+void receiveLoRaCommand() {
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    String receivedCommand = LoRa.readString();
+    Serial.println("Received command: " + receivedCommand);
+
+    // Process the received command
+    if (receivedCommand == "R1_ON") {
+      digitalWrite(relayPin1, LOW); // Turn on relay 1
+    } else if (receivedCommand == "R1_OFF") {
+      digitalWrite(relayPin1, HIGH); // Turn off relay 1
+    }
+    else if (receivedCommand == "R2_ON") {
+      digitalWrite(relayPin2, LOW); // Turn on relay 2
+    } else if (receivedCommand == "R2_OFF") {
+      digitalWrite(relayPin2, HIGH); // Turn off relay 2
+    }
+  }
 }

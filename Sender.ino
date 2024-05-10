@@ -12,6 +12,8 @@ const char* password = " ";
 
 #include <BlynkSimpleEsp8266.h>
 
+BlynkTimer timer;
+
 const int csPin = D8;
 const int resetPin = D0;
 const int irqPin = D2;
@@ -20,7 +22,9 @@ String temperature = "N/A";
 String humidity = "N/A";
 String motionState = "N/A";
 
+
 void setup() { 
+  Serial.begin(9600);
   // Initialize LoRa
   LoRa.setPins(csPin, resetPin, irqPin);
   if (!LoRa.begin(433E6)) {
@@ -35,6 +39,7 @@ void setup() {
 
 void loop() {
   Blynk.run(); // Run Blynk
+  timer.run();
 
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
@@ -84,14 +89,14 @@ BLYNK_WRITE(V1) {
     sendLoRaCommand("R1_ON");
   }
   else{
-    sendLoRaCommand("R1_OFF");
+    sendLoRaCommand("R1_OFF"); 
   }
 }
 
 BLYNK_WRITE(V2) {
   if (param.asInt() == 1) {
     Serial.println("Button 2 pressed");
-    sendLoRaCommand("R2_ON");
+    sendLoRaCommand("R2_ON"); 
   }
   else{
      sendLoRaCommand("R2_OFF");

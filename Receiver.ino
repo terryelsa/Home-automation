@@ -19,6 +19,13 @@ DHT dht(DHTPIN, DHTTYPE);
 // Define PIR Motion Sensor pin
 const int pirPin = 8;       // PIR motion sensor pin
 
+//Define the parameters
+float humidity = 0.0;
+float temperature = 0.0;
+int motionDetected = 0.0;
+unsigned long int lastSend = 0;
+int interval = 5000;
+
 void setup() {
   Serial.begin(9600);
   pinMode(relayPin1, OUTPUT);
@@ -43,21 +50,23 @@ void setup() {
 }
 
 void loop() {
-  // Read sensor data
-  float humidity = dht.readHumidity();
-  float temperature = dht.readTemperature();
-  int motionDetected = digitalRead(pirPin);
-
-  // Print sensor readings
-  Serial.print("Temperature: ");
-  Serial.print(temperature);
-  Serial.print("°C, Humidity: ");
-  Serial.print(humidity);
-  Serial.print("%, Motion Detected: ");
-  Serial.println(motionDetected ? "Yes" : "No");
-
-  // Send sensor data via LoRa to transmitter
-  sendSensorData(temperature, humidity, motionDetected);
+  if (millis() - lastSend >= 5000)
+  {
+    // Read sensor data
+    humidity = dht.readHumidity();
+    temperature = dht.readTemperature();
+    motionDetected = digitalRead(pirPin);
+    // Print sensor readings
+    Serial.print("Temperature: ");
+    Serial.print(temperature);
+    Serial.print("°C, Humidity: ");
+    Serial.print(humidity);
+    Serial.print("%, Motion Detected: ");
+    Serial.println(motionDetected ? "Yes" : "No");
+    // Send sensor data via LoRa to transmitter
+    sendSensorData(temperature, humidity, motionDetected);
+    lastSend = millis ();
+  }
 
   // Check for LoRa commands
   receiveLoRaCommand();

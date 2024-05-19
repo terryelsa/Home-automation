@@ -2,8 +2,8 @@
 #include <LoRa.h>
 
 // WiFi network details
-const char* ssid = "ELSA 7584";
-const char* password = "q4Q2914(";
+const char* ssid = "Your WiFi name";
+const char* password = "Your WiFi password";
 // Blynk authentication token
 #define BLYNK_TEMPLATE_ID "TMPL2eJutAnKH"
 #define BLYNK_TEMPLATE_NAME "LoRa Ra 02 with ESP8266"
